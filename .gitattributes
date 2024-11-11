@@ -5,3 +5,4 @@
 *.bin filter=lfs diff=lfs merge=lfs -text
 .utmp/RelWithDebInfo/2w323s12/arm64-v8a/.ninja_deps filter=lfs diff=lfs merge=lfs -text
 .utmp/RelWithDebInfo/2w323s12/armeabi-v7a/.ninja_deps filter=lfs diff=lfs merge=lfs -text
+*.aseprite filter=lfs diff=lfs merge=lfs -text
