@@ -70,8 +70,8 @@ public class BossManager : MonoBehaviour
     private IEnumerator MoveLeftRight()
     {
 
-        float leftLimit = -1.5f;
-        float rightLimit = 1.5f;
+        float leftLimit = -8f;
+        float rightLimit = 8f;
 
         float targetX = Random.Range(leftLimit, rightLimit);
         float startX = bossTransform.position.x;

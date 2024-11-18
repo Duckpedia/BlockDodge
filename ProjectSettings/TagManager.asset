@@ -2,9 +2,13 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags:
   - Block
+  - Block2
+  - Enemy
+  - Projectile
+  - CatBoss
   layers:
   - Default
   - TransparentFX
@@ -13,9 +17,9 @@ TagManager:
   - Water
   - UI
   - 
-  - 
-  - 
-  - 
+  - Enemy
+  - Block
+  - Projectile
   - 
   - 
   - 
@@ -42,3 +46,11 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Items
+    uniqueID: 2047033669
+    locked: 0
+  - name: Player
+    uniqueID: 3619642325
+    locked: 0
+  m_RenderingLayers:
+  - Default

@@ -1,39 +1,69 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    public float moveSpeed;
-    Rigidbody2D rb;
-    // Start is called before the first frame update
+    private float moveSpeed = 5f;
+    public Sprite[] walkingSprites;
+    public float animationSpeed = 0.2f;
+
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
+    private int currentSpriteIndex = 0;
+    private bool isMoving = false;
+    private Coroutine walkingCoroutine;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
-        if(Input.GetMouseButton(0)){
+        if (Input.GetMouseButton(0))
+        {
             Vector3 touchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if(touchPos.x < 0 ){
-                rb.AddForce(Vector2.left * moveSpeed);
-            }
-            else{
-                rb.AddForce(Vector2.right * moveSpeed);
+            float moveDirection = touchPos.x < 0 ? -1 : 1;
+            rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocity.y);
+
+            if (!isMoving)
+            {
+                isMoving = true;
+                walkingCoroutine = StartCoroutine(WalkingAnimation());
             }
         }
-        else{
+        else
+        {
             rb.linearVelocity = Vector2.zero;
+
+            if (isMoving)
+            {
+                isMoving = false;
+                StopCoroutine(walkingCoroutine);
+                currentSpriteIndex = 0;
+                spriteRenderer.sprite = walkingSprites[currentSpriteIndex];
+            }
         }
 
     }
 
-    void OnCollisionEnter2D(Collision2D collision){
-        if(collision.gameObject.tag == "Block"){
-            SceneManager.LoadSceneAsync(1);
+    IEnumerator WalkingAnimation()
+    {
+        while (true)
+        {
+            spriteRenderer.sprite = walkingSprites[currentSpriteIndex];
+            currentSpriteIndex = (currentSpriteIndex + 1) % walkingSprites.Length;
+            yield return new WaitForSeconds(animationSpeed);
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Block" || collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Block2")
+        {
+            FindFirstObjectByType<GameManager>().ResetGame();
         }
     }
 }
