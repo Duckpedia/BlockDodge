@@ -9,11 +9,10 @@ public class GameManager : MonoBehaviour
 
     public static bool gameStarted = false;
     public GameObject TapText;
-    public TextMeshProUGUI ScoreText;
 
     public GameObject Block;
     public GameObject Block2;
-    public GameObject Enemy;
+    public GameObject Enemyobj;
     public GameObject ProjectilePrefab;
     public float maxX;
     public Transform SpawnPoint;
@@ -21,13 +20,14 @@ public class GameManager : MonoBehaviour
     public AchievementsManager achievementsManager;
     private bool enemyOnScreen = false;
     private Coroutine projectileCoroutine;
-    public float spawnRate = 2f;
+    public float spawnRate = 1.5f;
     public float blockSpeed = 0.5f;
-    public float enemySpeed = 0.3f;
+    public float enemySpeed = Enemy.speed;
     public bool difup = false;
     public bool bossDestroyed = false;
+    private int enemiesKilled = 0;
 
-    private int score = 0;
+    private int itemsdodged = 0;
     public BossManager bossManager;
     public bool canShoot = false;
     public Enemy enemy;
@@ -38,7 +38,6 @@ public class GameManager : MonoBehaviour
         bossActive = true;
         bossManager.gameObject.SetActive(true);
         canShoot = false;
-        ScoreText.gameObject.SetActive(false);
         CancelInvoke("SpawnObject");
         StartCoroutine(bossManager.BossEntrance());
     }
@@ -60,7 +59,6 @@ public class GameManager : MonoBehaviour
     {
         canShoot = false;
         bossManager.gameObject.SetActive(false);
-        ScoreText.gameObject.SetActive(true);
         enemyOnScreen = false;
         StartSpawning();
         if (projectileCoroutine != null)
@@ -68,6 +66,7 @@ public class GameManager : MonoBehaviour
             StopCoroutine(projectileCoroutine);
         }
         bossDestroyed = true;
+        StartCoroutine(TransitionToLevel2());
     }
 
     void Awake()
@@ -92,9 +91,8 @@ public class GameManager : MonoBehaviour
             TapText.SetActive(false);
         }
 
-        if (score >= 10 && bossDestroyed == false && !bossActive)
+        if (enemiesKilled == 1 && bossDestroyed == false && !bossActive)
         {
-            print("BOSS INCOMING!!");
             if(!enemyOnScreen) StartBossSequence();
         }
     }
@@ -106,7 +104,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnObject()
     {
-        if (score % 10 == 0 && !difup)
+        if (itemsdodged % 10 == 0 && !difup && itemsdodged != 0)
         {
             difup = true;
             IncreaseDifficulty();
@@ -116,11 +114,7 @@ public class GameManager : MonoBehaviour
             difup = false;
         }
 
-        if (score > StaticValues.HighScore)
-        {
-            StaticValues.HighScore = score;
-        }
-        achievementsManager.CheckForAchievements(score, StaticValues.HighScore);
+        achievementsManager.CheckForAchievements(itemsdodged);
 
         Vector3 spawnPos = SpawnPoint.position;
         spawnPos.x = Random.Range(-maxX, maxX);
@@ -128,13 +122,12 @@ public class GameManager : MonoBehaviour
         GameObject blockToSpawn = (Random.value < 0.5f) ? Block : Block2;
         Instantiate(blockToSpawn, spawnPos, Quaternion.identity);
 
-        score++;
-        ScoreText.text = score.ToString();
+        itemsdodged++;
 
         if (!enemyOnScreen && Random.value >= 0.8f)
         {
             spawnPos.x = Random.Range(-maxX, maxX);
-            Instantiate(Enemy, spawnPos, Quaternion.identity);
+            Instantiate(Enemyobj, spawnPos, Quaternion.identity);
             enemyOnScreen = true;
             canShoot = true;
             if (canShoot)
@@ -147,8 +140,9 @@ public class GameManager : MonoBehaviour
     private void IncreaseDifficulty()
     {
         blockSpeed *= 1.4f;
-        enemySpeed *= 1.4f;
-        spawnRate *= 0.9f;
+        Enemy.speed *= 1.4f;
+        enemySpeed = Enemy.speed;
+        spawnRate *= 0.85f;
     }
 
     private IEnumerator SpawnProjectiles()
@@ -168,13 +162,8 @@ public class GameManager : MonoBehaviour
 
     public void EnemyDefeated()
     {
-        score += 10;
-        ScoreText.text = score.ToString();
-        if (score > StaticValues.HighScore)
-        {
-            StaticValues.HighScore = score;
-        }
-        achievementsManager.CheckForAchievements(score, StaticValues.HighScore);
+        enemiesKilled += 1;
+        //achievementsManager.CheckForAchievements(score, StaticValues.HighScore);
         enemyOnScreen = false;
         canShoot = false;
         if (projectileCoroutine != null)
@@ -192,21 +181,29 @@ public class GameManager : MonoBehaviour
 
     public void OpenAchievementsPanel()
     {
-        achievementsManager.OnAchievementsPanelOpened(score, StaticValues.HighScore);
+        achievementsManager.OnAchievementsPanelOpened(itemsdodged);
     }
 
-    public void ResetGame()
+    private IEnumerator TransitionToLevel2()
+    {
+        ScreenFader fader = FindObjectOfType<ScreenFader>();
+        yield return fader.FadeOut(1f);
+        SceneManager.LoadScene("Level 2");
+        yield return fader.FadeIn(1f);
+    }
+
+
+    public void ResetLevel()
     {
         gameStarted = false;
-        score = 0;
-        ScoreText.text = "0";
+        itemsdodged = 0;
+        enemiesKilled = 0;
         TapText.SetActive(true);
         spawnRate = 2f;
         blockSpeed = 0.5f;
-        enemySpeed = 0.3f;
+        Enemy.speed = 0.3f;
         enemyOnScreen = false;
         canShoot = false;
-        ScoreText.gameObject.SetActive(true);
         bossDestroyed = false;
         bossActive = false;
 

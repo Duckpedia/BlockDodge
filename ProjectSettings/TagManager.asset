@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Projectile
   - CatBoss
+  - ShieldDrop
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Player
   - Enemy
   - Block
   - Projectile

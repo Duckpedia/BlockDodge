@@ -5,12 +5,19 @@ using UnityEngine.UI;
 public class AchievementsManager : MonoBehaviour
 {
     public TextMeshProUGUI GemsText;
-    public Button ClaimButton50; // Changed from 50 to 20
+    public Button ClaimButton50;
     public Button ClaimButton100;
     public GameObject AchievementsPanel;
 
-    private int[] achievementScores = { 50, 100 }; // Change 50 to 20
+    private int[] achievementScores = { 50, 100 };
     private bool[] achievementsClaimed;
+
+    void Update()
+    {
+        if(!AchievementsPanel.activeSelf){
+            HideClaimButtons();
+        }
+    }
 
     void Awake()
     {
@@ -25,23 +32,22 @@ public class AchievementsManager : MonoBehaviour
         HideClaimButtons();
     }
 
-    public void CheckForAchievements(int score, int HighScore)
+    public void CheckForAchievements(int itemsdodged)
     {
-        // Check for achievements and display buttons
-        if (score >= 50 && !achievementsClaimed[0] || HighScore >= 50)
+        if (itemsdodged >= 50 && !achievementsClaimed[0])
         {
-            ShowClaimButton(50); // Changed 50 to 20
+            ShowClaimButton(50);
         }
 
-        if (score >= 100 && !achievementsClaimed[1] || HighScore >= 100)
+        if (itemsdodged >= 100 && !achievementsClaimed[1])
         {
             ShowClaimButton(100);
         }
     }
 
-    public void ClaimRewardForScore50() // Changed from 50 to 20
+    public void ClaimRewardForScore50()
     {
-        ClaimReward(0, 50); // Changed from 50 to 20
+        ClaimReward(0, 50);
     }
 
     public void ClaimRewardForScore100()
@@ -49,17 +55,17 @@ public class AchievementsManager : MonoBehaviour
         ClaimReward(1, 100);
     }
 
-    private void ClaimReward(int index, int score)
+    private void ClaimReward(int index, int itemsdodged)
     {
-        if (!achievementsClaimed[index]) // Can only claim if not already claimed
+        if (!achievementsClaimed[index])
         {
             achievementsClaimed[index] = true;
-            StaticValues.Gems += 25; // Add gems to the player
+            StaticValues.Gems += 25;
             UpdateGemsText();
-            HideClaimButton(score);
+            HideClaimButton(itemsdodged);
 
-            PlayerPrefs.SetInt($"AchievementClaimed_{score}", 1); // Save the claim status
-            PlayerPrefs.Save(); // Save changes to PlayerPrefs
+            PlayerPrefs.SetInt($"AchievementClaimed_{itemsdodged}", 1);
+            PlayerPrefs.Save();
         }
     }
 
@@ -68,42 +74,42 @@ public class AchievementsManager : MonoBehaviour
         GemsText.text = StaticValues.Gems.ToString();
     }
 
-    private void ShowClaimButton(int score)
+    private void ShowClaimButton(int itemsdodged)
     {
-        if (AchievementsPanel.activeSelf) // Only show when the panel is active
+        if (AchievementsPanel.activeSelf)
         {
-            if (score == 50 && !achievementsClaimed[0]) // Check for 20 score
+            if (itemsdodged == 50 && !achievementsClaimed[0])
             {
                 ClaimButton50.gameObject.SetActive(true);
             }
-            else if (score == 100 && !achievementsClaimed[1]) // Check for 100 score
+            else if (itemsdodged == 100 && !achievementsClaimed[1])
             {
                 ClaimButton100.gameObject.SetActive(true);
             }
         }
+    
     }
 
     private void HideClaimButtons()
     {
-        ClaimButton50.gameObject.SetActive(false); // Hide 20 button
-        ClaimButton100.gameObject.SetActive(false); // Hide 100 button
+        ClaimButton50.gameObject.SetActive(false);
+        ClaimButton100.gameObject.SetActive(false);
     }
 
-    private void HideClaimButton(int score)
+    private void HideClaimButton(int itemsdodged)
     {
-        if (score == 50)
+        if (itemsdodged == 50)
         {
             ClaimButton50.gameObject.SetActive(false);
         }
-        else if (score == 100)
+        else if (itemsdodged == 100)
         {
             ClaimButton100.gameObject.SetActive(false);
         }
     }
 
-    // Call this method when opening the achievements panel
-    public void OnAchievementsPanelOpened(int score, int HighScore)
+    public void OnAchievementsPanelOpened(int itemsdodged)
     {
-        CheckForAchievements(score, HighScore);
+        CheckForAchievements(itemsdodged);
     }
 }

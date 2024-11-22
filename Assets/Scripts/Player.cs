@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.tag == "Block" || collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Block2")
         {
-            FindFirstObjectByType<GameManager>().ResetGame();
+            FindFirstObjectByType<GameManager>().ResetLevel();
         }
     }
 }
