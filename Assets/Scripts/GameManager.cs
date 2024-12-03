@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public static bool gameStarted = false;
     public GameObject TapText;
 
+    private LevelScreen levelScr;
     public GameObject Block;
     public GameObject Block2;
     public GameObject Enemyobj;
@@ -29,7 +30,7 @@ public class GameManager : MonoBehaviour
 
     private int itemsdodged = 0;
     public BossManager bossManager;
-    public bool canShoot = false;
+    private bool canShoot = true;
     public Enemy enemy;
     private bool bossActive = false;
 
@@ -44,14 +45,8 @@ public class GameManager : MonoBehaviour
 
     public void OnBossEntranceComplete()
     {
-        print("BOSS!");
         canShoot = true;
         enemyOnScreen = true;
-        if (projectileCoroutine != null)
-        {
-            StopCoroutine(projectileCoroutine);
-        }
-        projectileCoroutine = StartCoroutine(SpawnProjectiles());
     }
 
 
@@ -60,7 +55,6 @@ public class GameManager : MonoBehaviour
         canShoot = false;
         bossManager.gameObject.SetActive(false);
         enemyOnScreen = false;
-        StartSpawning();
         if (projectileCoroutine != null)
         {
             StopCoroutine(projectileCoroutine);
@@ -80,6 +74,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        // levelScr.StopAllCoroutines();
     }
 
     void Update()
@@ -87,55 +82,49 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !gameStarted)
         {
             gameStarted = true;
-            StartSpawning();
             TapText.SetActive(false);
         }
-
-        if (enemiesKilled == 1 && bossDestroyed == false && !bossActive)
-        {
-            if(!enemyOnScreen) StartBossSequence();
-        }
     }
 
-    private void StartSpawning()
-    {
-        InvokeRepeating("SpawnObject", 0.4f, spawnRate);
-    }
+    // private void StartSpawning()
+    // {
+    //     InvokeRepeating("SpawnObject", 0.4f, spawnRate);
+    // }
 
-    private void SpawnObject()
-    {
-        if (itemsdodged % 10 == 0 && !difup && itemsdodged != 0)
-        {
-            difup = true;
-            IncreaseDifficulty();
-        }
-        else
-        {
-            difup = false;
-        }
+    // private void SpawnObject()
+    // {
+    //     if (itemsdodged % 10 == 0 && !difup && itemsdodged != 0)
+    //     {
+    //         difup = true;
+    //         IncreaseDifficulty();
+    //     }
+    //     else
+    //     {
+    //         difup = false;
+    //     }
 
-        achievementsManager.CheckForAchievements(itemsdodged);
+    //     achievementsManager.CheckForAchievements(itemsdodged);
 
-        Vector3 spawnPos = SpawnPoint.position;
-        spawnPos.x = Random.Range(-maxX, maxX);
+    //     Vector3 spawnPos = SpawnPoint.position;
+    //     spawnPos.x = Random.Range(-maxX, maxX);
 
-        GameObject blockToSpawn = (Random.value < 0.5f) ? Block : Block2;
-        Instantiate(blockToSpawn, spawnPos, Quaternion.identity);
+    //     GameObject blockToSpawn = (Random.value < 0.5f) ? Block : Block2;
+    //     Instantiate(blockToSpawn, spawnPos, Quaternion.identity);
 
-        itemsdodged++;
+    //     itemsdodged++;
 
-        if (!enemyOnScreen && Random.value >= 0.8f)
-        {
-            spawnPos.x = Random.Range(-maxX, maxX);
-            Instantiate(Enemyobj, spawnPos, Quaternion.identity);
-            enemyOnScreen = true;
-            canShoot = true;
-            if (canShoot)
-            {
-                projectileCoroutine = StartCoroutine(SpawnProjectiles());
-            }
-        }
-    }
+    //     if (!enemyOnScreen && Random.value >= 0.8f)
+    //     {
+    //         spawnPos.x = Random.Range(-maxX, maxX);
+    //         Instantiate(Enemyobj, spawnPos, Quaternion.identity);
+    //         enemyOnScreen = true;
+    //         canShoot = true;
+    //         if (canShoot)
+    //         {
+    //             projectileCoroutine = StartCoroutine(SpawnProjectiles());
+    //         }
+    //     }
+    // }
 
     private void IncreaseDifficulty()
     {
@@ -145,20 +134,24 @@ public class GameManager : MonoBehaviour
         spawnRate *= 0.85f;
     }
 
-    private IEnumerator SpawnProjectiles()
+    public void SpawnProjectile()
     {
-        if (canShoot)
+        if(canShoot)
         {
-            yield return new WaitForSeconds(2f);
-            while (canShoot)
-            {
-                Vector3 projectileSpawnPos = PlayerTransform.position + Vector3.up * 1f;
-                Instantiate(ProjectilePrefab, projectileSpawnPos, Quaternion.identity);
-                yield return new WaitForSeconds(1.5f);
-            }
+            StopCoroutine(ResetShootCooldown());
+            canShoot = false;
+            Vector3 projectileSpawnPos = PlayerTransform.position + Vector3.up * 1.2f;
+            Instantiate(ProjectilePrefab, projectileSpawnPos, Quaternion.identity);
+            
+            StartCoroutine(ResetShootCooldown());
         }
     }
 
+    private IEnumerator ResetShootCooldown()
+    {
+        yield return new WaitForSeconds(0.5f);
+        canShoot = true;
+    }
 
     public void EnemyDefeated()
     {

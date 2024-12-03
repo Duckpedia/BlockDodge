@@ -9,7 +9,9 @@ public class MainMenu : MonoBehaviour
     public TextMeshProUGUI Highscore;
 
     public void PlayGame(){
+        if(StaticValues.StoryCompleted == 0)
         SceneManager.LoadSceneAsync("Beggining");
+        else SceneManager.LoadSceneAsync("LevelScreen");
     }
 
     public void QuitGame(){

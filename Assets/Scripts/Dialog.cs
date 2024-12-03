@@ -46,6 +46,7 @@ public class Dialog : MonoBehaviour
         }
         else
         {
+            StaticValues.StoryCompleted = 1;
             NextButton.SetActive(false);
             TextDisplay.text = "";
             StartCoroutine(Continue());              
@@ -56,7 +57,7 @@ public class Dialog : MonoBehaviour
     {
         ScreenFader fader = FindObjectOfType<ScreenFader>();
         yield return fader.FadeOut(1f);
-        SceneManager.LoadScene("Level 1");
+        SceneManager.LoadScene("LevelScreen");
         yield return fader.FadeIn(1f);
     }
 }

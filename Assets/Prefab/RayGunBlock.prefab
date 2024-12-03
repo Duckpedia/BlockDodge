@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3717310413751942776}
   m_Layer: 7
   m_Name: RayGunBlock
-  m_TagString: Block2
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
