@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     public Transform SpawnPoint;
     public Transform PlayerTransform;
     public AchievementsManager achievementsManager;
-    private bool enemyOnScreen = false;
+    public bool enemyOnScreen = false;
     private Coroutine projectileCoroutine;
     public float spawnRate = 1.5f;
     public float blockSpeed = 0.5f;
@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     private bool canShoot = true;
     public Enemy enemy;
     private bool bossActive = false;
+    private Coroutine projectileSpawner;
 
     public void StartBossSequence()
     {
@@ -48,7 +49,6 @@ public class GameManager : MonoBehaviour
         canShoot = true;
         enemyOnScreen = true;
     }
-
 
         public void OnBossDefeated()
     {
@@ -83,48 +83,10 @@ public class GameManager : MonoBehaviour
         {
             gameStarted = true;
             TapText.SetActive(false);
+            StartProjectileSpawner();
         }
+        
     }
-
-    // private void StartSpawning()
-    // {
-    //     InvokeRepeating("SpawnObject", 0.4f, spawnRate);
-    // }
-
-    // private void SpawnObject()
-    // {
-    //     if (itemsdodged % 10 == 0 && !difup && itemsdodged != 0)
-    //     {
-    //         difup = true;
-    //         IncreaseDifficulty();
-    //     }
-    //     else
-    //     {
-    //         difup = false;
-    //     }
-
-    //     achievementsManager.CheckForAchievements(itemsdodged);
-
-    //     Vector3 spawnPos = SpawnPoint.position;
-    //     spawnPos.x = Random.Range(-maxX, maxX);
-
-    //     GameObject blockToSpawn = (Random.value < 0.5f) ? Block : Block2;
-    //     Instantiate(blockToSpawn, spawnPos, Quaternion.identity);
-
-    //     itemsdodged++;
-
-    //     if (!enemyOnScreen && Random.value >= 0.8f)
-    //     {
-    //         spawnPos.x = Random.Range(-maxX, maxX);
-    //         Instantiate(Enemyobj, spawnPos, Quaternion.identity);
-    //         enemyOnScreen = true;
-    //         canShoot = true;
-    //         if (canShoot)
-    //         {
-    //             projectileCoroutine = StartCoroutine(SpawnProjectiles());
-    //         }
-    //     }
-    // }
 
     private void IncreaseDifficulty()
     {
@@ -134,22 +96,62 @@ public class GameManager : MonoBehaviour
         spawnRate *= 0.85f;
     }
 
+    private void StartProjectileSpawner()
+    {
+        if (projectileSpawner == null)
+        {
+            projectileSpawner = StartCoroutine(SpawnProjectilesAutomatically());
+        }
+    }
+
+    private IEnumerator SpawnProjectilesAutomatically()
+    {
+        while (true)
+        {
+            if (enemyOnScreen && WaveManager.activeEnemies.Count > 0)
+            {
+                SpawnProjectile();
+            }
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
     public void SpawnProjectile()
     {
-        if(canShoot)
+        if (canShoot && enemyOnScreen)
         {
-            StopCoroutine(ResetShootCooldown());
+            Vector3 spawnPosition = PlayerTransform.position + Vector3.up * 1.5f;
+            GameObject projectile = Instantiate(ProjectilePrefab, spawnPosition, Quaternion.identity);
+
             canShoot = false;
-            Vector3 projectileSpawnPos = PlayerTransform.position + Vector3.up * 1.2f;
-            Instantiate(ProjectilePrefab, projectileSpawnPos, Quaternion.identity);
-            
             StartCoroutine(ResetShootCooldown());
         }
     }
 
+    private GameObject FindClosestEnemy()
+    {
+        GameObject closestEnemy = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (GameObject enemy in WaveManager.activeEnemies)
+        {
+            if (enemy != null)
+            {
+                float distance = Vector2.Distance(PlayerTransform.position, enemy.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestEnemy = enemy;
+                }
+            }
+        }
+
+        return closestEnemy;
+    }
+
     private IEnumerator ResetShootCooldown()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
         canShoot = true;
     }
 

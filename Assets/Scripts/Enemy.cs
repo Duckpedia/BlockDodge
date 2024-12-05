@@ -36,6 +36,7 @@ public class Enemy : MonoBehaviour
         {
             Destroy(gameObject);
             FindFirstObjectByType<GameManager>().EnemyDefeated();
+            WaveManager.RemoveEnemy(gameObject);
         }
     }
 
@@ -73,4 +74,16 @@ public class Enemy : MonoBehaviour
             elapsed = 0f;
         }
     }
+
+    void OnDestroy()
+    {
+        WaveManager.RemoveEnemy(gameObject);
+
+        // If no active enemies remain, update GameManager
+        if (WaveManager.activeEnemies.Count == 0)
+        {
+            GameManager.Instance.enemyOnScreen = false;
+    }
+    }
+
 }

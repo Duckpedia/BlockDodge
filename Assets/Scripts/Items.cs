@@ -23,7 +23,7 @@ public class Items : MonoBehaviour
         {
             if (GameManager.gameStarted && !shieldDropped)
             {
-                yield return new WaitForSeconds(Random.Range(30f, 60f));
+                yield return new WaitForSeconds(Random.Range(3f, 6f));
                 Vector2 spawnPosition = new Vector2(Random.Range(-xRange, xRange), spawnHeight);
                 Instantiate(shieldDropPrefab, spawnPosition, Quaternion.identity);
                 shieldDropped = true;
@@ -39,8 +39,8 @@ public class Items : MonoBehaviour
         if (activeShield == null)
         {
             activeShield = Instantiate(shieldPrefab, player.transform);
-            activeShield.transform.localPosition = Vector3.zero;
-            activeShield.transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
+            activeShield.transform.localPosition = new Vector3(0f, 1f, 0f);
+            activeShield.transform.localScale = new Vector3(1f, 1f, 1f);
             shieldDropped = false;
             print("shielddropped is now false");
             Shield shieldScript = activeShield.GetComponent<Shield>();

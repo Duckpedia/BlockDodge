@@ -10,26 +10,32 @@ public class Player : MonoBehaviour
     public Sprite[] leftWalkingSprites;
     public Sprite[] rightIdleSprites;
     public Sprite[] leftIdleSprites;
+    public Sprite[] rightJumpSprites;
+    public Sprite[] leftJumpSprites;
     public float animationSpeed = 0.2f;
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private int currentSpriteIndex = 0;
     private bool isMoving = false;
+
     private Coroutine idleCoroutine;
     private bool idleCoroutineActive = false;
-
     private Coroutine walkingCoroutine;
     private bool walkingCoroutineActive = false;
+    private Coroutine jumpingCoroutine;
+    private bool jumpingCoroutineActive = false;
 
     public bool isGrounded = true;
     public bool canJump = true;
+    private bool jumping = false;
     private float groundCheckY = -4.3f;
 
     private float moveDirection = 0f;
     private bool flipped = false;
 
     private Transform parentTransform;
+    public Transform playerTransform;
 
     void Start()
     {
@@ -41,22 +47,32 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        isGrounded = parentTransform.position.y <= groundCheckY;
+        isGrounded = playerTransform.position.y <= groundCheckY;
 
         rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocity.y);
 
-        if (Mathf.Abs(moveDirection) > 0.1f)
+        if (isGrounded && !jumping)
         {
-            isMoving = true;
-            StopIdleAnimation();
-            StartWalkingAnimation();
+            StopJumpingAnimation();
 
+            if (Mathf.Abs(moveDirection) > 0.1f)
+            {
+                isMoving = true;
+                StopIdleAnimation();
+                StartWalkingAnimation();
+            }
+            else
+            {
+                isMoving = false;
+                StopWalkingAnimation();
+                StartIdleAnimation();
+            }
         }
-        else if (isMoving || !idleCoroutineActive)
+        else if(isGrounded && jumping)
         {
-            isMoving = false;
+            StopIdleAnimation();
             StopWalkingAnimation();
-            StartIdleAnimation();
+            StartJumpingAnimation();
         }
     }
 
@@ -77,21 +93,11 @@ public class Player : MonoBehaviour
         moveDirection = 0f;
     }
 
-    public void HandleJump()
-    {
-        if (isGrounded && canJump)
-        {
-            Vector2 jumpVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            rb.linearVelocity = jumpVelocity;
-            canJump = false;
-            StartCoroutine(JumpCooldown());
-        }
-    }
-
     private IEnumerator JumpCooldown()
     {
         yield return new WaitForSeconds(0.2f);
         canJump = true;
+        jumping = false;
     }
 
     private void StartIdleAnimation()
@@ -107,6 +113,14 @@ public class Player : MonoBehaviour
         if (walkingCoroutine == null)
         {
             walkingCoroutine = StartCoroutine(WalkingAnimation());
+        }
+    }
+
+    private void StartJumpingAnimation()
+    {
+        if (jumpingCoroutine == null)
+        {
+            jumpingCoroutine = StartCoroutine(JumpingAnimation());
         }
     }
 
@@ -127,6 +141,18 @@ public class Player : MonoBehaviour
             idleCoroutine = null;
         }
     }
+
+    private void StopJumpingAnimation()
+    {
+        if (jumpingCoroutine != null)
+        {
+            Debug.Log("Stopping Jump Animation");
+            StopCoroutine(jumpingCoroutine);
+            jumpingCoroutine = null;
+            jumpingCoroutineActive = false;
+        }
+    }
+
 
     private IEnumerator IdleAnimation()
     {
@@ -161,6 +187,37 @@ public class Player : MonoBehaviour
                 yield return new WaitForSeconds(0.15f);
             }
         }
+    }
+
+    private IEnumerator JumpingAnimation()
+    {
+        jumpingCoroutineActive = true;
+
+        for (int i = 0; i < rightJumpSprites.Length; i++)
+        {
+            spriteRenderer.sprite = flipped ? rightJumpSprites[i] : leftJumpSprites[i];
+            yield return new WaitForSeconds(0.06f);
+        }
+    }
+
+
+    public void HandleJump()
+    {
+        if (isGrounded && canJump)
+        {
+            jumping = true;
+            StartCoroutine(DelayedJump());
+        }
+    }
+
+    private IEnumerator DelayedJump()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        Vector2 jumpVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        rb.linearVelocity = jumpVelocity;
+        canJump = false;
+        StartCoroutine(JumpCooldown());
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

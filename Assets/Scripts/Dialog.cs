@@ -8,7 +8,7 @@ public class Dialog : MonoBehaviour
 
     public TextMeshProUGUI TextDisplay;
     public string[] sentences;
-    private int index;
+    private int index = 0;
     public float TypingSpeed;
 
     public GameObject NextButton;
