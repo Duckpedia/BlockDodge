@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6496611958230165278}
   - component: {fileID: 365643890648648079}
   - component: {fileID: 8503041316874220303}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Projectile
   m_TagString: Projectile
   m_Icon: {fileID: 0}
@@ -130,10 +130,10 @@ BoxCollider2D:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2

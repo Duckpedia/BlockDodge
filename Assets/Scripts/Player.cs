@@ -1,10 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
     private float moveSpeed = 5f;
     public float jumpForce = 1f;
+    public float dashLengthMeters = 3.0f;
+    public float dashDurationSeconds = 0.175f;
 
     public Sprite[] rightWalkingSprites;
     public Sprite[] leftWalkingSprites;
@@ -32,7 +35,10 @@ public class Player : MonoBehaviour
     private float groundCheckY = -4.3f;
 
     private float moveDirection = 0f;
+    private float lastMoveDirection = 0.0f;
     private bool flipped = false;
+
+    private float dashTimer = 0.0f;
 
     private Transform parentTransform;
     public Transform playerTransform;
@@ -49,7 +55,21 @@ public class Player : MonoBehaviour
     {
         isGrounded = playerTransform.position.y <= groundCheckY;
 
-        rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocityX = 0.0f;
+
+        if (moveDirection != 0.0)
+        {
+            rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocity.y);
+            lastMoveDirection = moveDirection;
+            dashTimer = 0.0f;
+        }
+
+        if (dashTimer > 0.0f)
+        {
+            dashTimer -= Time.deltaTime;
+            float dir = lastMoveDirection > 0.0f ? 1.0f : -1.0f;
+            rb.linearVelocityX = (dashLengthMeters / dashDurationSeconds) * dir;
+        }
 
         if (isGrounded && !jumping)
         {
@@ -86,6 +106,11 @@ public class Player : MonoBehaviour
     {
         flipped = true;
         moveDirection = 1f;
+    }
+
+    public void OnDash()
+    {
+        dashTimer = dashDurationSeconds;
     }
 
     public void OnMoveStop()
