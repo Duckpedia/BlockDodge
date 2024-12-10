@@ -627,6 +627,11 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 4.4440775}
   m_EdgeRadius: 0
+--- !u!1 &239762972 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2575392165540549056, guid: 495f9e7a6cfd348d19456f7a5644c6a5, type: 3}
+  m_PrefabInstance: {fileID: 5116827331048584799}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &253059550
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,7 +1093,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4229316313922893645, guid: b566c1fbe26894ee8acd1b4a0345178d, type: 3}
   m_PrefabInstance: {fileID: 5298908496147730604}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2080318758}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a87314d5207594529bf7d302049026a4, type: 3}
@@ -2826,22 +2831,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waves:
-  - waveName: Wave1
-    enemyNumber: 5
-    typeOfEnemies:
-    - {fileID: 1890976430685823630, guid: b566c1fbe26894ee8acd1b4a0345178d, type: 3}
-    spawnInterval: 2
-  - waveName: Wave2
-    enemyNumber: 7
-    typeOfEnemies:
-    - {fileID: 1890976430685823630, guid: b566c1fbe26894ee8acd1b4a0345178d, type: 3}
-    spawnInterval: 2
-  - waveName: Final wave
-    enemyNumber: 1
-    typeOfEnemies:
-    - {fileID: 1401895138}
-    spawnInterval: 1
+  - name: Wave 1
+    duration: 10
+    entities:
+    - type: {fileID: 2080318758}
+      number: 1
+  - name: Wave 2
+    duration: 10
+    entities:
+    - type: {fileID: 2080318758}
+      number: 2
+  - name: Wave 3
+    duration: 10
+    entities:
+    - type: {fileID: 2080318758}
+      number: 2
+    - type: {fileID: 239762972}
+      number: 2
   spawnPoint: {fileID: 453809116}
+  spawnWidth: 16
 --- !u!1 &992170239
 GameObject:
   m_ObjectHideFlags: 0
@@ -5810,6 +5818,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2073964674}
   m_CullTransparentMesh: 1
+--- !u!1 &2080318758 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1890976430685823630, guid: b566c1fbe26894ee8acd1b4a0345178d, type: 3}
+  m_PrefabInstance: {fileID: 5298908496147730604}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2139425092
 GameObject:
   m_ObjectHideFlags: 0

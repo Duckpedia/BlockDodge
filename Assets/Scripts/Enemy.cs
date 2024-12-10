@@ -78,12 +78,6 @@ public class Enemy : MonoBehaviour
     void OnDestroy()
     {
         WaveManager.RemoveEnemy(gameObject);
-
-        // If no active enemies remain, update GameManager
-        if (WaveManager.activeEnemies.Count == 0)
-        {
-            GameManager.Instance.enemyOnScreen = false;
-    }
     }
 
 }

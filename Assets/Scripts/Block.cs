@@ -21,6 +21,7 @@ public class Block : MonoBehaviour
 
         if (transform.position.y < -4.5f)
         {
+            WaveManager.RemoveEnemy(gameObject);
             Destroy(gameObject);
         }
     }
