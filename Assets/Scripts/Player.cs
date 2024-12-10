@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
 
     private float dashTimer = 0.0f;
 
+    private float rbGravityStrength = 0.0f; 
     private Transform parentTransform;
     public Transform playerTransform;
 
@@ -49,6 +50,8 @@ public class Player : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         parentTransform = transform.parent;
+
+        rbGravityStrength = rb.gravityScale;
     }
 
     void FixedUpdate()
@@ -67,8 +70,15 @@ public class Player : MonoBehaviour
         if (dashTimer > 0.0f)
         {
             dashTimer -= Time.deltaTime;
-            float dir = lastMoveDirection > 0.0f ? 1.0f : -1.0f;
-            rb.linearVelocityX = (dashLengthMeters / dashDurationSeconds) * dir;
+            if(dashTimer < 0.0f) // dash just ended
+            {
+                rb.gravityScale = rbGravityStrength;
+            }
+            else
+            {
+                float dir = lastMoveDirection > 0.0f ? 1.0f : -1.0f;
+                rb.linearVelocityX = (dashLengthMeters / dashDurationSeconds) * dir;
+            }
         }
 
         if (isGrounded && !jumping)
@@ -110,6 +120,9 @@ public class Player : MonoBehaviour
 
     public void OnDash()
     {
+        OnMoveStop();
+        rbGravityStrength = rb.gravityScale;
+        rb.gravityScale = 0.0f; 
         dashTimer = dashDurationSeconds;
     }
 
