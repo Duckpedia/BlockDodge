@@ -2745,6 +2745,7 @@ MonoBehaviour:
   enemySpeed: 0.3
   difup: 0
   bossDestroyed: 0
+  waveManager: {fileID: 941001904}
   bossManager: {fileID: 1401895142}
   enemy: {fileID: 352276160}
 --- !u!4 &941001899
@@ -6063,7 +6064,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9054722248194030747, guid: 1e3a505ee53a14384a8d21d8fe595610, type: 3}
       propertyPath: m_Layer
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 9054722248194030747, guid: 1e3a505ee53a14384a8d21d8fe595610, type: 3}
       propertyPath: m_IsActive
@@ -6177,7 +6178,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1890976430685823630, guid: b566c1fbe26894ee8acd1b4a0345178d, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1890976430685823630, guid: b566c1fbe26894ee8acd1b4a0345178d, type: 3}
       propertyPath: m_IsActive
