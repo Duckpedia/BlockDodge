@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     public float enemySpeed = Enemy.speed;
     public bool difup = false;
     public bool bossDestroyed = false;
+    public WaveManager waveManager;
     private int enemiesKilled = 0;
 
     private int itemsdodged = 0;
@@ -82,6 +83,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !gameStarted)
         {
             gameStarted = true;
+            if (waveManager != null) waveManager.StartWave(0);
             TapText.SetActive(false);
             StartProjectileSpawner();
         }

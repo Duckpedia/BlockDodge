@@ -1,71 +1,161 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using System;
+using Random = UnityEngine.Random;
+
+[System.Serializable]
+public struct WaveEntity {
+    public GameObject type;
+    public int number;
+}
 
 [System.Serializable]
 public class Wave
 {
-    public string waveName;
-    public int enemyNumber;
-    public GameObject[] typeOfEnemies;
-    public float spawnInterval;
+    public string name;
+
+    [Tooltip("Time till the next wave starts. Enemies spawn evenly out.")]
+    public float duration;
+    public WaveEntity[] entities;
+
+    public int TotalEntities()
+    {
+        int n = 0;
+        for (int i = 0; i < entities.Length; i++)
+        {
+            n += entities[i].number;
+        }
+        return n;
+    }
 }
 
 public class WaveManager : MonoBehaviour
 {
     public Wave[] waves;
     public Transform spawnPoint;
+    public float spawnWidth = 16.0f;
 
-    private Wave currentWave;
-    private int currentWaveNumber;
+    private int[] runtimeWaveEntityNumbers; // used during runtime to count down remaining enemy numbers
     private float nextSpawnTime;
-
-    private float maxX = 8f;
-    private bool canSpawn = true;
+    private float nextWaveTime;
+    private int currentWaveNumber = -1;
 
     public static List<GameObject> activeEnemies = new List<GameObject>();
 
+    private void Start()
+    {
+        currentWaveNumber = -1;
+    }
+
     private void Update()
     {
-        if (GameManager.gameStarted)
+        GameManager.Instance.enemyOnScreen = activeEnemies.Count > 0;    
+        Debug.Log(activeEnemies.Count);
+        if (!GameManager.gameStarted)
         {
-            currentWave = waves[currentWaveNumber];
-            SpawnWave();
-
-            if (activeEnemies.Count == 0 && !canSpawn && currentWaveNumber + 1 < waves.Length)
-            {
-                currentWaveNumber++;
-                canSpawn = true;
-                GameManager.Instance.enemyOnScreen = false;
-            }
-            if(activeEnemies.Count != 0)
-            {
-                GameManager.Instance.enemyOnScreen = true;
-            }
+            return;
         }
+
+        UpdateWaves();
     }
 
-    void SpawnWave()
+    void UpdateWaves()
     {
-        if (canSpawn && nextSpawnTime < Time.time)
+        if (currentWaveNumber < 0 || currentWaveNumber >= waves.Length)
         {
-            Vector3 spawnPos = spawnPoint.position;
-            spawnPos.x = Random.Range(-maxX, maxX);
+            return;
+        }
 
-            GameObject randomEnemy = currentWave.typeOfEnemies[Random.Range(0, currentWave.typeOfEnemies.Length)];
-            GameObject newEnemy = Instantiate(randomEnemy, spawnPos, Quaternion.identity);
-
-            activeEnemies.Add(newEnemy);
-
-            currentWave.enemyNumber--;
-            nextSpawnTime = Time.time + currentWave.spawnInterval;
-
-            if (currentWave.enemyNumber == 0)
+        if (Time.time > nextWaveTime)
+        {
+            if (currentWaveNumber + 1>= waves.Length) 
             {
-                canSpawn = false;
+                currentWaveNumber = -1; // done
+                return;
+            }
+
+            StartWave(currentWaveNumber + 1);
+        }
+
+        if (Time.time > nextSpawnTime)
+        {
+            int nRemainingEnemies = NumberRemainingEntities();
+            if (nRemainingEnemies == 0) return;
+
+            int spawnedEnemy = Random.Range(0, nRemainingEnemies);
+            Debug.Log("Picked:" + spawnedEnemy + "to spawn");
+
+            for (int i = 0; i < runtimeWaveEntityNumbers.Length; i++)
+            {
+                int n = runtimeWaveEntityNumbers[i];
+                if (n == 0) continue;
+
+                spawnedEnemy -= n;
+                if (spawnedEnemy > 0) continue;
+
+                SpawnEnemy(waves[currentWaveNumber].entities[i].type);
+                runtimeWaveEntityNumbers[i] -= 1;
+                break;
             }
         }
     }
 
+    void SpawnEnemy(GameObject go)
+    {
+        Debug.Log("Spawned:" + go);
+        Wave wave = waves[currentWaveNumber];
+
+        int nEntities = wave.TotalEntities();
+        float spacing = wave.duration;
+        if (nEntities > 0) 
+        {
+            spacing /= nEntities + 2;// + 2 so enemies dont spawn right at the start of the wave or right at the end
+        }
+
+        nextSpawnTime = Time.time + spacing;
+
+        if (go == null)
+        {
+            return;
+        }
+
+        Vector3 spawnPos = spawnPoint.position;
+        spawnPos.x = Random.Range(-spawnWidth * 0.5f, spawnWidth * 0.5f);
+
+        GameObject newEnemy = Instantiate(go, spawnPos, Quaternion.identity);
+        newEnemy.SetActive(true);
+
+        activeEnemies.Add(newEnemy);
+    }
+
+    public void StartWave(int waveNumber)
+    {
+        currentWaveNumber = waveNumber;
+        Debug.Log("Wave:" + waveNumber + "started");
+
+        Wave wave = waves[currentWaveNumber];
+
+        nextWaveTime = Time.time + wave.duration;
+
+        runtimeWaveEntityNumbers = new int[wave.entities.Length];
+        for (int i = 0; i < wave.entities.Length; i++)
+        {
+            runtimeWaveEntityNumbers[i] = wave.entities[i].number;
+        }
+
+        SpawnEnemy(null); // spawns a "fake" entity at the start instead of a real one
+    }
+
+    int NumberRemainingEntities()
+    {
+        int nRemainingEnemies = 0;
+        for (int i = 0; i < runtimeWaveEntityNumbers.Length; i++)
+        {
+            nRemainingEnemies += runtimeWaveEntityNumbers[i];
+        }
+        return nRemainingEnemies;
+    }
 
     public static void RemoveEnemy(GameObject enemy)
     {
@@ -74,6 +164,4 @@ public class WaveManager : MonoBehaviour
             activeEnemies.Remove(enemy);
         }
     }
-
-
 }
