@@ -627,11 +627,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 4.4440775}
   m_EdgeRadius: 0
---- !u!1 &239762972 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2575392165540549056, guid: 495f9e7a6cfd348d19456f7a5644c6a5, type: 3}
-  m_PrefabInstance: {fileID: 5116827331048584799}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &253059550
 GameObject:
   m_ObjectHideFlags: 0
@@ -2846,8 +2841,6 @@ MonoBehaviour:
     duration: 10
     entities:
     - type: {fileID: 2080318758}
-      number: 2
-    - type: {fileID: 239762972}
       number: 2
   spawnPoint: {fileID: 453809116}
   spawnWidth: 16

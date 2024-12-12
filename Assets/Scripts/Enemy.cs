@@ -12,9 +12,12 @@ public class Enemy : MonoBehaviour
     private float horizontalDirection;
 
     private Coroutine flyingCoroutine;
+    private Coroutine shootingCoroutine;
     public Sprite[] leftFlyingSprites;
     public Sprite[] rightFlyingSprites;
     private SpriteRenderer spriteRenderer;
+    public GameObject projectilePrefab; // Assign your projectile prefab in the Inspector
+    public float shootingInterval = 1.0f;
 
     void Start()
     {
@@ -26,6 +29,7 @@ public class Enemy : MonoBehaviour
         }
         StartCoroutine(MoveLeftRight());
         StartFlyingAnimation();
+        StartShooting();
     }
 
     void Update()
@@ -40,22 +44,24 @@ public class Enemy : MonoBehaviour
     public void RegisterHit()
     {
         currentHits++;
+        Debug.Log($"Enemy hit! Current hits: {currentHits}/{hitsRequired}");
 
         if (currentHits >= hitsRequired)
         {
+            Debug.Log("Enemy destroyed!");
             Destroy(gameObject);
             FindFirstObjectByType<GameManager>().EnemyDefeated();
             WaveManager.RemoveEnemy(gameObject);
         }
     }
 
-public IEnumerator MoveLeftRight()
+    public IEnumerator MoveLeftRight()
     {
         float leftLimit = -8f;
         float rightLimit = 8f;
 
         float targetX = Random.Range(leftLimit, rightLimit);
-        float startX = enemyTransform.position.x;
+        float startX = transform.position.x;
         float elapsed = 0f;
         float moveDuration = 4f;
 
@@ -63,7 +69,7 @@ public IEnumerator MoveLeftRight()
         float hoverAmplitude = 1f;
         float hoverFrequency = 2f;
 
-        previousPosition = enemyTransform.position;
+        previousPosition = transform.position;
 
         while (true)
         {
@@ -71,14 +77,14 @@ public IEnumerator MoveLeftRight()
             {
                 float newX = Mathf.Lerp(startX, targetX, elapsed / moveDuration);
 
-                float newY = enemyTransform.position.y - (verticalSpeed * Time.deltaTime) +
+                float newY = transform.position.y - (verticalSpeed * Time.deltaTime) +
                              Mathf.Sin(elapsed * hoverFrequency) * hoverAmplitude * Time.deltaTime;
 
                 Vector2 newPosition = new Vector2(newX, newY);
 
                 horizontalDirection = Mathf.Sign(newPosition.x - previousPosition.x);
 
-                enemyTransform.position = newPosition;
+                transform.position = newPosition; // Update position of the enemy.
 
                 previousPosition = newPosition;
 
@@ -87,14 +93,9 @@ public IEnumerator MoveLeftRight()
             }
 
             targetX = Random.Range(leftLimit, rightLimit);
-            startX = enemyTransform.position.x;
+            startX = transform.position.x;
             elapsed = 0f;
         }
-    }
-
-    void OnDestroy()
-    {
-        WaveManager.RemoveEnemy(gameObject);
     }
 
     private IEnumerator FlyingAnimation()
@@ -127,4 +128,44 @@ public IEnumerator MoveLeftRight()
         }
     }
 
+    private IEnumerator ShootProjectiles()
+    {
+        while (true)
+        {
+            if (projectilePrefab != null)
+            {
+                Vector3 spawnPosition = new Vector3(transform.position.x, transform.position.y - 0.5f, 0);
+                Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+            }
+            yield return new WaitForSeconds(shootingInterval);
+        }
+    }
+
+    private void StartShooting()
+    {
+        if (shootingCoroutine == null)
+        {
+            shootingCoroutine = StartCoroutine(ShootProjectiles());
+        }
+    }
+
+    private void StopShooting()
+    {
+        if (shootingCoroutine != null)
+        {
+            StopCoroutine(shootingCoroutine);
+            shootingCoroutine = null;
+        }
+    }
+
+    void OnDestroy()
+    {
+        WaveManager.RemoveEnemy(gameObject);
+        if (WaveManager.activeEnemies.Count == 0)
+        {
+            GameManager.Instance.enemyOnScreen = false;
+        }
+        StopFlyingAnimation();
+        StopShooting();
+    }
 }
