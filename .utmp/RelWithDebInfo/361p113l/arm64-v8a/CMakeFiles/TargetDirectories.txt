@@ -1,0 +1,5 @@
+/Users/nika/Programming/Unity/Galaxy_Pursuit/.utmp/RelWithDebInfo/361p113l/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/nika/Programming/Unity/Galaxy_Pursuit/.utmp/RelWithDebInfo/361p113l/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/nika/Programming/Unity/Galaxy_Pursuit/.utmp/RelWithDebInfo/361p113l/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir
+/Users/nika/Programming/Unity/Galaxy_Pursuit/.utmp/RelWithDebInfo/361p113l/arm64-v8a/FramePacing/CMakeFiles/edit_cache.dir
+/Users/nika/Programming/Unity/Galaxy_Pursuit/.utmp/RelWithDebInfo/361p113l/arm64-v8a/FramePacing/CMakeFiles/rebuild_cache.dir

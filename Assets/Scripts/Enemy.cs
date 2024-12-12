@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class Enemy : MonoBehaviour
 {
@@ -8,15 +9,26 @@ public class Enemy : MonoBehaviour
     private int currentHits = 0;
     public Transform enemyTransform;
     private GameManager gameManager;
+    public Sprite[] rightFlyingSprites;
+    public Sprite[] leftFlyingSprites;
+    private Coroutine flyingCoroutine;
+    private bool flyingCoroutineActive = false;
+    bool flipped = false;
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
+    private float horizontalDirection;
+    private Vector2 previousPosition;
 
     void Start()
     {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         if (rb != null)
         {
             Destroy(rb);
         }
         StartCoroutine(MoveLeftRight());
+        StartFlyingAnimation();
     }
 
     void Update()
@@ -54,6 +66,8 @@ public class Enemy : MonoBehaviour
         float hoverAmplitude = 1f;
         float hoverFrequency = 2f;
 
+        previousPosition = enemyTransform.position;
+
         while (true)
         {
             while (elapsed < moveDuration)
@@ -61,9 +75,15 @@ public class Enemy : MonoBehaviour
                 float newX = Mathf.Lerp(startX, targetX, elapsed / moveDuration);
 
                 float newY = enemyTransform.position.y - (verticalSpeed * Time.deltaTime) +
-                             Mathf.Sin(elapsed * hoverFrequency) * hoverAmplitude * Time.deltaTime;
+                            Mathf.Sin(elapsed * hoverFrequency) * hoverAmplitude * Time.deltaTime;
 
-                enemyTransform.position = new Vector2(newX, newY);
+                Vector2 newPosition = new Vector2(newX, newY);
+
+                horizontalDirection = Mathf.Sign(newPosition.x - previousPosition.x);
+
+                enemyTransform.position = newPosition;
+
+                previousPosition = newPosition;
 
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -78,12 +98,42 @@ public class Enemy : MonoBehaviour
     void OnDestroy()
     {
         WaveManager.RemoveEnemy(gameObject);
-
-        // If no active enemies remain, update GameManager
+        StopFlyingAnimation();
         if (WaveManager.activeEnemies.Count == 0)
         {
             GameManager.Instance.enemyOnScreen = false;
+        }
     }
+
+    private IEnumerator FlyingAnimation()
+    {
+        flyingCoroutineActive = true;
+        while (true)
+        {
+            Sprite[] currentSprites = horizontalDirection > 0 ? rightFlyingSprites : leftFlyingSprites;
+            for (int i = 0; i < currentSprites.Length; i++)
+            {
+                spriteRenderer.sprite = currentSprites[i];
+                yield return new WaitForSeconds(0.15f); // Adjust frame duration as needed
+            }
+        }
+    }
+
+    private void StartFlyingAnimation()
+    {
+        if (flyingCoroutine == null)
+        {
+            flyingCoroutine = StartCoroutine(FlyingAnimation());
+        }
+    }
+
+    private void StopFlyingAnimation()
+    {
+        if (flyingCoroutine != null)
+        {
+            StopCoroutine(flyingCoroutine);
+            flyingCoroutine = null;
+        }
     }
 
 }
