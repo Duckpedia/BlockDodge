@@ -55,7 +55,7 @@ public class Dialog : MonoBehaviour
 
     private IEnumerator Continue()
     {
-        ScreenFader fader = FindObjectOfType<ScreenFader>();
+        ScreenFader fader = Object.FindFirstObjectByType<ScreenFader>();
         yield return fader.FadeOut(1f);
         SceneManager.LoadScene("LevelScreen");
         yield return fader.FadeIn(1f);

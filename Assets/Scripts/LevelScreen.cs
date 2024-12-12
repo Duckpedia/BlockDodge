@@ -12,7 +12,7 @@ public class LevelScreen : MonoBehaviour
 
     private IEnumerator Level1()
     {
-        ScreenFader fader = FindObjectOfType<ScreenFader>();
+        ScreenFader fader = Object.FindFirstObjectByType<ScreenFader>();
         yield return fader.FadeOut(1f);
         SceneManager.LoadScene("Level 1");
         yield return fader.FadeIn(1f);

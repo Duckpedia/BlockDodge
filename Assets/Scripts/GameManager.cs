@@ -180,7 +180,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator TransitionToLevel2()
     {
-        ScreenFader fader = FindObjectOfType<ScreenFader>();
+        ScreenFader fader = Object.FindFirstObjectByType<ScreenFader>();
         yield return fader.FadeOut(1f);
         SceneManager.LoadScene("Level 2");
         yield return fader.FadeIn(1f);
