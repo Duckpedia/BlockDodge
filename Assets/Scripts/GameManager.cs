@@ -33,12 +33,10 @@ public class GameManager : MonoBehaviour
     public BossManager bossManager;
     private bool canShoot = true;
     public Enemy enemy;
-    private bool bossActive = false;
     private Coroutine projectileSpawner;
 
     public void StartBossSequence()
     {
-        bossActive = true;
         bossManager.gameObject.SetActive(true);
         canShoot = false;
         CancelInvoke("SpawnObject");
@@ -75,7 +73,6 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        // levelScr.StopAllCoroutines();
     }
 
     void Update()
@@ -202,7 +199,6 @@ public class GameManager : MonoBehaviour
         enemyOnScreen = false;
         canShoot = false;
         bossDestroyed = false;
-        bossActive = false;
 
         if(bossManager){
             bossManager.gameObject.SetActive(false);

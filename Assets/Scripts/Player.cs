@@ -19,15 +19,10 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    private int currentSpriteIndex = 0;
-    private bool isMoving = false;
 
     private Coroutine idleCoroutine;
-    private bool idleCoroutineActive = false;
     private Coroutine walkingCoroutine;
-    private bool walkingCoroutineActive = false;
     private Coroutine jumpingCoroutine;
-    private bool jumpingCoroutineActive = false;
 
     public bool isGrounded = true;
     public bool canJump = true;
@@ -87,13 +82,11 @@ public class Player : MonoBehaviour
 
             if (Mathf.Abs(moveDirection) > 0.1f)
             {
-                isMoving = true;
                 StopIdleAnimation();
                 StartWalkingAnimation();
             }
             else
             {
-                isMoving = false;
                 StopWalkingAnimation();
                 StartIdleAnimation();
             }
@@ -187,14 +180,12 @@ public class Player : MonoBehaviour
             Debug.Log("Stopping Jump Animation");
             StopCoroutine(jumpingCoroutine);
             jumpingCoroutine = null;
-            jumpingCoroutineActive = false;
         }
     }
 
 
     private IEnumerator IdleAnimation()
     {
-        idleCoroutineActive = true;
         while (true)
         {
             for (int repeat = 0; repeat < 3; repeat++)
@@ -216,7 +207,6 @@ public class Player : MonoBehaviour
 
     private IEnumerator WalkingAnimation()
     {
-        walkingCoroutineActive = true;
         while (true)
         {
             for (int i = 0; i < 7; i++)
@@ -229,8 +219,6 @@ public class Player : MonoBehaviour
 
     private IEnumerator JumpingAnimation()
     {
-        jumpingCoroutineActive = true;
-
         for (int i = 0; i < rightJumpSprites.Length; i++)
         {
             spriteRenderer.sprite = flipped ? rightJumpSprites[i] : leftJumpSprites[i];

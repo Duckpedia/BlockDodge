@@ -8,15 +8,24 @@ public class Enemy : MonoBehaviour
     private int currentHits = 0;
     public Transform enemyTransform;
     private GameManager gameManager;
+    private Vector2 previousPosition;
+    private float horizontalDirection;
+
+    private Coroutine flyingCoroutine;
+    public Sprite[] leftFlyingSprites;
+    public Sprite[] rightFlyingSprites;
+    private SpriteRenderer spriteRenderer;
 
     void Start()
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         if (rb != null)
         {
             Destroy(rb);
         }
         StartCoroutine(MoveLeftRight());
+        StartFlyingAnimation();
     }
 
     void Update()
@@ -40,7 +49,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public IEnumerator MoveLeftRight()
+public IEnumerator MoveLeftRight()
     {
         float leftLimit = -8f;
         float rightLimit = 8f;
@@ -54,6 +63,8 @@ public class Enemy : MonoBehaviour
         float hoverAmplitude = 1f;
         float hoverFrequency = 2f;
 
+        previousPosition = enemyTransform.position;
+
         while (true)
         {
             while (elapsed < moveDuration)
@@ -63,7 +74,13 @@ public class Enemy : MonoBehaviour
                 float newY = enemyTransform.position.y - (verticalSpeed * Time.deltaTime) +
                              Mathf.Sin(elapsed * hoverFrequency) * hoverAmplitude * Time.deltaTime;
 
-                enemyTransform.position = new Vector2(newX, newY);
+                Vector2 newPosition = new Vector2(newX, newY);
+
+                horizontalDirection = Mathf.Sign(newPosition.x - previousPosition.x);
+
+                enemyTransform.position = newPosition;
+
+                previousPosition = newPosition;
 
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -78,6 +95,36 @@ public class Enemy : MonoBehaviour
     void OnDestroy()
     {
         WaveManager.RemoveEnemy(gameObject);
+    }
+
+    private IEnumerator FlyingAnimation()
+    {
+        while (true)
+        {
+            Sprite[] currentSprites = horizontalDirection > 0 ? rightFlyingSprites : leftFlyingSprites;
+            for (int i = 0; i < currentSprites.Length; i++)
+            {
+                spriteRenderer.sprite = currentSprites[i];
+                yield return new WaitForSeconds(0.15f);
+            }
+        }
+    }
+
+    private void StartFlyingAnimation()
+    {
+        if (flyingCoroutine == null)
+        {
+            flyingCoroutine = StartCoroutine(FlyingAnimation());
+        }
+    }
+
+    private void StopFlyingAnimation()
+    {
+        if (flyingCoroutine != null)
+        {
+            StopCoroutine(flyingCoroutine);
+            flyingCoroutine = null;
+        }
     }
 
 }
