@@ -169,3 +169,4 @@ public class Enemy : MonoBehaviour
         StopShooting();
     }
 }
+    
